@@ -1,0 +1,20 @@
+# Service du backend : nom DNS stable « backend » devant les 2 pods de l'API.
+# Il répartit les requêtes entre les pods (le champ servedBy le montre).
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: bijouterie
+  labels:
+    app: bijouterie
+    tier: backend
+spec:
+  # ClusterIP : l'API n'est joignable que depuis le cluster, via le frontend.
+  type: ClusterIP
+  selector:
+    app: bijouterie
+    tier: backend
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000

@@ -1,0 +1,70 @@
+# Deployment du backend (API Node.js).
+# Les photos sont stockées en base, le backend ne garde rien sur disque :
+# on peut donc lancer plusieurs replicas.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: bijouterie
+  labels:
+    app: bijouterie
+    tier: backend
+spec:
+  # Deux pods : si l'un tombe, l'autre continue de répondre.
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bijouterie
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: bijouterie
+        tier: backend
+    spec:
+      containers:
+        - name: backend
+          image: pamalick/bijouterie-backend:0
+          ports:
+            - name: http
+              containerPort: 3000
+          # Méthode 1, envFrom : toutes les clés de la ConfigMap sont injectées
+          # d'un coup, avec leur nom d'origine.
+          envFrom:
+            - configMapRef:
+                name: backend-config
+          # Méthode 2, env[].valueFrom : on choisit une clé précise d'un Secret
+          # et le nom de la variable qui la reçoit.
+          env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: DB_PASSWORD
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          # Liveness : si /api/health ne répond plus, Kubernetes redémarre le conteneur.
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          # Readiness : tant que MySQL n'est pas joignable, /api/ready renvoie 503
+          # et le Service n'envoie pas de trafic à ce pod.
+          readinessProbe:
+            httpGet:
+              path: /api/ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5

@@ -1,0 +1,23 @@
+# ConfigMap du backend : la configuration non sensible, en clair.
+# Une ConfigMap ne contient jamais de mot de passe.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: bijouterie
+  labels:
+    app: bijouterie
+    tier: backend
+data:
+  # Port d'écoute de l'API dans le conteneur.
+  PORT: "3000"
+  # Nom du Service MySQL : le DNS interne du cluster le traduit en adresse IP.
+  DB_HOST: "mysql"
+  DB_PORT: "3306"
+  # Doit être identique à MYSQL_DATABASE du Secret mysql-secret.
+  DB_NAME: "bijouterie"
+  # Nom affiché en en-tête du site.
+  SHOP_NAME: "Maison Amina"
+  CURRENCY: "FCFA"
+  # Taille maximale d'une photo, en Mo.
+  MAX_FILE_SIZE_MB: "5"
