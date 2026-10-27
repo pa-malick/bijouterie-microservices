@@ -1,0 +1,17 @@
+# Configuration du cluster local kind (Kubernetes dans Docker).
+# Création : kind create cluster --config kind-config.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: bijouterie
+nodes:
+  - role: control-plane
+    # Version épinglée : les versions plus récentes ne démarrent pas sur un
+    # Docker en cgroup v1 (cas de ce poste).
+    image: kindest/node:v1.32.2
+    # Le nœud kind est lui-même un conteneur Docker. Ce mapping publie son
+    # port 30080 sur la machine : le Service NodePort du frontend devient
+    # accessible par http://localhost:30080.
+    extraPortMappings:
+      - containerPort: 30080
+        hostPort: 30080
+        protocol: TCP
