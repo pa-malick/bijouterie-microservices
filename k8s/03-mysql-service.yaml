@@ -1,0 +1,22 @@
+# Service de MySQL : nom DNS stable « mysql » devant le pod de la base.
+# Le backend s'y connecte avec DB_HOST=mysql.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: bijouterie
+  labels:
+    app: bijouterie
+    tier: database
+spec:
+  # ClusterIP : adresse joignable seulement depuis l'intérieur du cluster.
+  # La base n'est donc pas exposée à l'extérieur.
+  type: ClusterIP
+  # Le trafic est envoyé aux pods qui portent ces labels.
+  selector:
+    app: bijouterie
+    tier: database
+  ports:
+    - name: mysql
+      port: 3306        # port du Service
+      targetPort: 3306  # port du conteneur

@@ -1,0 +1,58 @@
+# Deployment de la base MySQL.
+# Pas de volume persistant : les données vivent dans le conteneur et sont
+# perdues si le pod est recréé (test n°5 du § 4.9).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: bijouterie
+  labels:
+    app: bijouterie
+    tier: database
+spec:
+  # Une seule instance : plusieurs pods MySQL n'auraient pas les mêmes données.
+  replicas: 1
+  # Recreate : l'ancien pod est arrêté avant de créer le nouveau, pour ne
+  # jamais avoir deux MySQL en même temps.
+  strategy:
+    type: Recreate
+  # Le Deployment gère les pods qui portent ces labels.
+  selector:
+    matchLabels:
+      app: bijouterie
+      tier: database
+  # Modèle des pods créés par le Deployment.
+  template:
+    metadata:
+      labels:
+        app: bijouterie
+        tier: database
+    spec:
+      containers:
+        - name: mysql
+          # Image construite depuis database/ et poussée sur Docker Hub.
+          # Tag explicite : latest est interdit.
+          image: pamalick/bijouterie-mysql:0
+          ports:
+            - name: mysql
+              containerPort: 3306
+          # envFrom : toutes les clés du Secret deviennent des variables
+          # d'environnement du même nom (MYSQL_ROOT_PASSWORD, etc.).
+          envFrom:
+            - secretRef:
+                name: mysql-secret
+          # requests : ce que le scheduler réserve sur le nœud.
+          # limits : le maximum autorisé avant bridage (CPU) ou arrêt (mémoire).
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          # Le pod n'est déclaré prêt que lorsque MySQL accepte les connexions.
+          readinessProbe:
+            tcpSocket:
+              port: 3306
+            initialDelaySeconds: 15
+            periodSeconds: 5

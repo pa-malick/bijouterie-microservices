@@ -1,0 +1,9 @@
+# Namespace : un espace isolé dans le cluster qui regroupe toutes les
+# ressources de la bijouterie. On peut ainsi tout lister ou tout supprimer
+# d'un coup sans toucher au reste du cluster.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bijouterie
+  labels:
+    app: bijouterie
