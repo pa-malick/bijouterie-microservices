@@ -1,0 +1,50 @@
+# Deployment du frontend (Nginx) : sert le site et relaie /api vers le backend.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: bijouterie
+  labels:
+    app: bijouterie
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bijouterie
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: bijouterie
+        tier: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: pamalick/bijouterie-frontend:0
+          ports:
+            - name: http
+              containerPort: 80
+          # BACKEND_URL et MAX_UPLOAD_SIZE viennent de la ConfigMap.
+          envFrom:
+            - configMapRef:
+                name: frontend-config
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          # /healthz est une route de santé prévue dans la config Nginx.
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 5

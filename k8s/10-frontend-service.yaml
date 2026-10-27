@@ -1,0 +1,21 @@
+# Service du frontend : la porte d'entrée du site depuis le navigateur.
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: bijouterie
+  labels:
+    app: bijouterie
+    tier: frontend
+spec:
+  # NodePort : ouvre le port 30080 sur le nœud du cluster.
+  # Avec kind, extraPortMappings le relaie vers http://localhost:30080.
+  type: NodePort
+  selector:
+    app: bijouterie
+    tier: frontend
+  ports:
+    - name: http
+      port: 80          # port du Service dans le cluster
+      targetPort: 80    # port du conteneur Nginx
+      nodePort: 30080   # port ouvert sur le nœud (plage 30000-32767)

@@ -1,0 +1,16 @@
+# ConfigMap du frontend : lue par Nginx au démarrage du conteneur.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: bijouterie
+  labels:
+    app: bijouterie
+    tier: frontend
+data:
+  # Adresse interne du Service backend : nom du Service + port.
+  # Nginx relaie toutes les requêtes /api/* vers cette adresse.
+  BACKEND_URL: "http://backend:3000"
+  # Taille maximale d'une requête (photo comprise). Un peu plus que les 5 Mo
+  # autorisés par le backend, pour laisser la place aux autres champs.
+  MAX_UPLOAD_SIZE: "6m"
