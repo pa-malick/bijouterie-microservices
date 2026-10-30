@@ -1,6 +1,6 @@
 # Deployment de la base MySQL.
-# Pas de volume persistant : les données vivent dans le conteneur et sont
-# perdues si le pod est recréé (test n°5 du § 4.9).
+# Bonus : les données sont stockées sur le volume persistant mysql-pvc
+# (fichier 11), elles survivent donc à la suppression du pod.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -56,3 +56,12 @@ spec:
               port: 3306
             initialDelaySeconds: 15
             periodSeconds: 5
+          # Le dossier des données MySQL est monté sur le volume persistant.
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+      # Volume du pod, rattaché au PVC mysql-pvc.
+      volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: mysql-pvc

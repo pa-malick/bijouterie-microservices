@@ -1,0 +1,21 @@
+# Bonus : volume persistant pour MySQL.
+# Le PVC demande un espace disque au cluster. Il vit indépendamment du pod :
+# si le pod MySQL est supprimé, les données restent sur le volume.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: bijouterie
+  labels:
+    app: bijouterie
+    tier: database
+spec:
+  # ReadWriteOnce : le volume est monté en lecture/écriture par un seul nœud.
+  # Suffisant ici, MySQL n'a qu'un replica.
+  accessModes:
+    - ReadWriteOnce
+  # Classe de stockage par défaut de kind (provisioner local-path).
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Gi
