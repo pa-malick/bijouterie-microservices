@@ -30,9 +30,9 @@ spec:
     spec:
       containers:
         - name: mysql
-          # Image construite depuis database/ et poussée sur Docker Hub.
-          # Tag explicite : latest est interdit.
-          image: pamalick/bijouterie-mysql:0
+          # Bonus : image officielle, le script init.sql vient de la
+          # ConfigMap mysql-initdb (fichier 12). Tag explicite, pas latest.
+          image: mysql:8.4
           ports:
             - name: mysql
               containerPort: 3306
@@ -60,8 +60,16 @@ spec:
           volumeMounts:
             - name: mysql-data
               mountPath: /var/lib/mysql
-      # Volume du pod, rattaché au PVC mysql-pvc.
+            # Le script init.sql est monté dans le dossier lu par l'image MySQL.
+            - name: mysql-initdb
+              mountPath: /docker-entrypoint-initdb.d
+              readOnly: true
       volumes:
+        # Volume des données, rattaché au PVC mysql-pvc.
         - name: mysql-data
           persistentVolumeClaim:
             claimName: mysql-pvc
+        # Volume du script d'initialisation, rempli par la ConfigMap.
+        - name: mysql-initdb
+          configMap:
+            name: mysql-initdb
