@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: pamalick/bijouterie-frontend:4
+          image: pamalick/bijouterie-frontend:7
           ports:
             - name: http
               containerPort: 80

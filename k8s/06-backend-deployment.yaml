@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: pamalick/bijouterie-backend:4
+          image: pamalick/bijouterie-backend:7
           ports:
             - name: http
               containerPort: 3000
