@@ -1,0 +1,40 @@
+# Application Argo CD : déploie le dossier k8s/ du dépôt Git dans le cluster.
+# Git devient la seule source de vérité : plus aucun kubectl apply à la main.
+# Création (une seule fois) : kubectl apply -f argocd/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bijouterie
+  # Les objets Application vivent dans le namespace d'Argo CD.
+  namespace: argocd
+spec:
+  # Projet Argo CD par défaut (pas de restriction particulière).
+  project: default
+
+  # Source : ce qu'il faut déployer.
+  source:
+    # Dépôt public : aucun token n'est nécessaire pour le lire.
+    repoURL: https://github.com/pa-malick/bijouterie-microservices.git
+    # Branche principale.
+    targetRevision: main
+    # Dossier qui contient les manifests.
+    path: k8s
+
+  # Destination : où le déployer.
+  destination:
+    # Le cluster où tourne Argo CD lui-même (cluster local kind).
+    server: https://kubernetes.default.svc
+    namespace: bijouterie
+
+  # Politique de synchronisation.
+  syncPolicy:
+    # automated : Argo CD applique tout seul chaque nouveau commit.
+    automated:
+      # prune : une ressource retirée de Git est supprimée du cluster.
+      prune: true
+      # selfHeal : une modification faite à la main dans le cluster
+      # (ex. un Service supprimé) est annulée pour revenir à l'état de Git.
+      selfHeal: true
+    syncOptions:
+      # Crée le namespace bijouterie s'il n'existe pas encore.
+      - CreateNamespace=true
