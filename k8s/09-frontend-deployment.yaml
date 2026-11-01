@@ -27,7 +27,7 @@ spec:
         - name: frontend
           # Image publiée par Jenkins, tag = numéro de build (mis à jour par le stage
           # Update manifests). Tag explicite : latest est interdit.
-          image: pamalick/bijouterie-frontend:9
+          image: pamalick/bijouterie-frontend:11
           ports:
             - name: http
               containerPort: 80    # port d'écoute de Nginx
