@@ -8,7 +8,8 @@ metadata:
     app: bijouterie
     tier: frontend
 spec:
-  replicas: 2
+  # 3 replicas (démonstration GitOps : changement poussé par Git, appliqué par Argo CD).
+  replicas: 3
   selector:
     matchLabels:
       app: bijouterie
